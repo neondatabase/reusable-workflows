@@ -39,7 +39,7 @@ jobs:
 
 The full list of supported parameters can be viewed in the [_neon-preview-branches-for-pull-requests.yml_](/.github/workflows/neon-preview-branches-for-pull-requests.yml) file.
 
-## How to create a Neon API key
+## How to set up a Neon API key
 
 1. Navigate to the **Account settings** page in the Neon console. Select **API keys** > **Create new API key**.
 2. Add your Neon API key to your GitHub Secrets:
