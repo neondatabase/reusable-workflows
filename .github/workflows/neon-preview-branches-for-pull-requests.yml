@@ -11,15 +11,22 @@ on:
   workflow_call:
     inputs:
       project_id:
+        description: A project ID.
         required: true
         type: string
       parent_branch:
+        description: |
+          A parameter to create a new branch. 
+          The parent branch name or id or LSN or timestamp. 
+          By default the primary branch is used.
         required: true
         type: string
       db:
+        description: A parameter to create a new branch.
         required: true
         type: string
       role:
+        description: A parameter to create a new branch.
         required: true
         type: string
     secrets:
@@ -33,7 +40,7 @@ jobs:
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
         if: |
-          {{ github.event_name == 'pull_request' && (
+          ${{ github.event_name == 'pull_request' && (
           github.event.action == 'synchronize'
           || github.event.action == 'opened'
           || github.event.action == 'reopened')  }}
