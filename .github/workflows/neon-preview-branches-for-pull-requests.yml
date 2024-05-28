@@ -1,13 +1,6 @@
 name: Create/Delete Branch for Pull Request Workflow
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
-      - labeled
   workflow_call:
     inputs:
       project_id:
