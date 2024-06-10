@@ -48,7 +48,8 @@ jobs:
           echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_ENV
 
       - name: Create Neon Branch
-        uses: neondatabase/create-branch-action@v5.0.0
+        #uses: neondatabase/create-branch-action@v5.0.0
+        uses: neondatabase/create-branch-action@feat/expose_auth_api_urls_params
         if: |
           ${{ github.event_name == 'pull_request' && (
           github.event.action == 'synchronize'
