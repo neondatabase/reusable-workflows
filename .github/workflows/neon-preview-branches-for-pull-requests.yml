@@ -9,30 +9,29 @@ on:
         type: string
       parent_branch:
         description: |
-          A parameter to create a new branch. 
-          The parent branch name or id or LSN or timestamp. 
-          By default the primary branch is used.
+          The parent branch name or id or LSN or timestamp to create a new branch. 
+          If not specified, primary branch is used.
         required: false
         type: string
       db:
-        description: A parameter to create a new branch.
+        description: |
+          An optional role to construct a db connection string after branch creation.
         required: false
         type: string
       role:
-        description: A parameter to create a new branch.
+        description: |
+          An optional role to construct a db connection string after branch creation..
         required: false
         type: string
       oauth_url:
         type: string
-        description: An URL to Neon OAuth service
-        default: 'https://console.neon.tech/api/v2'
+        description: An URL to Neon OAuth service.
       api_url:
         type: string
         description: An URL to Neon API service
-        default: ''
     secrets:
       NEON_API_KEY:
-        description: A Neon API key.
+        description: A Neon API key is required to access the APIs for branch creation, deletion, reset.
         required: true
 
 jobs:
@@ -40,16 +39,21 @@ jobs:
     name: Create/Delete Branch for Pull Request Job
     runs-on: ubuntu-latest
     steps:
-#      - name: Fetch integration data
-#        shell: bash
-#        run: |
-#          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
-#            ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
-#            | jq -r ".workflows[] | select(.type == \"pr_branches\")")
-#          echo $WORKFLOW
-#          echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_ENV
-#          echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_ENV
-#          echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_ENV
+      - name: Fetch integration data
+        id: fetch
+        shell: bash
+        if: |
+          ${{ github.event_name == 'pull_request' && (
+          github.event.action == 'synchronize'
+          || github.event.action == 'opened'
+          || github.event.action == 'reopened') }}
+        run: |
+          WORKFLOW=$(curl -fsSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+            ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
+            | jq -r ".workflows[] | select(.type == \"pr_branches\")")
+          echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_OUTPUT
+          echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_OUTPUT
+          echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
 
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
@@ -57,13 +61,13 @@ jobs:
           ${{ github.event_name == 'pull_request' && (
           github.event.action == 'synchronize'
           || github.event.action == 'opened'
-          || github.event.action == 'reopened')  }}
+          || github.event.action == 'reopened') }}
         with:
           project_id: ${{ inputs.project_id }}
           branch_name: preview/pr-${{ github.event.number }}
-          parent: ${{ inputs.parent_branch }}
-          database: ${{ inputs.db }}
-          username: ${{ inputs.role }}
+          parent: ${{ steps.run_tests.outputs.fetch.workflow_parent }}
+          database: ${{ steps.run_tests.outputs.fetch.workflow_db }}
+          username: ${{ steps.run_tests.outputs.fetch.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
