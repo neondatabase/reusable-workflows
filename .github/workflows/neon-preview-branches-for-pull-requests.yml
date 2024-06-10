@@ -64,8 +64,9 @@ jobs:
           database: ${{ env.workflow_db }}
           username: ${{ env.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
-          oauth_url: ${{ inputs.oauth_url }}
-          api_url: ${{ inputs.oauth_url }}
+        env:
+          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+          NEON_API_HOST: ${{ inputs.api_url }}
 
       - name: Reset Neon Branch
         uses: neondatabase/reset-branch-action@v1
@@ -80,8 +81,9 @@ jobs:
           parent: true
           branch: preview/pr-${{ github.event.number }}
           api_key: ${{ secrets.NEON_API_KEY }}
-          oauth_url: ${{ inputs.oauth_url }}
-          api_url: ${{ inputs.oauth_url }}
+        env:
+          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+          NEON_API_HOST: ${{ inputs.api_url }}
 
       - name: Delete Neon Branch
         uses: neondatabase/delete-branch-action@v3
@@ -90,5 +92,6 @@ jobs:
           project_id: ${{ inputs.project_id }}
           branch: preview/pr-${{ github.event.number }}
           api_key: ${{ secrets.NEON_API_KEY }}
-          oauth_url: ${{ inputs.oauth_url }}
-          api_url: ${{ inputs.oauth_url }}
+        env:
+          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+          NEON_API_HOST: ${{ inputs.api_url }}
