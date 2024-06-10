@@ -31,7 +31,9 @@ on:
         description: An URL to Neon API service
         default: ''
     secrets:
-      inherit:
+      NEON_API_KEY:
+        description: A Neon API key.
+        required: true
 
 jobs:
   neon_branch_management:
