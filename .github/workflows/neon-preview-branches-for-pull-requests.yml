@@ -37,6 +37,10 @@ jobs:
           https://console.neon.tech/api/v2/projects/${{ inputs.project_id} }}/applications/github \
           | jq -r ".workflows[] | select(.type == 'pr_branches')")
           echo $WORKFLOW
+          echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_ENV
+          echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_ENV
+          echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_ENV
+
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
         if: |
@@ -47,9 +51,9 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           branch_name: preview/pr-${{ github.event.number }}
-          parent: ${{ inputs.parent_branch }}
-          database: ${{ inputs.db }}
-          username: ${{ inputs.role }}
+          parent: ${{ env.workflow_parent }}
+          database: ${{ env.workflow_db }}
+          username: ${{ env.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Reset Neon Branch
