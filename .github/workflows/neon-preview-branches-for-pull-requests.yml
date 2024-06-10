@@ -33,9 +33,7 @@ jobs:
       - name: Fetch integration data
         shell: bash
         run: |
-          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \ 
-          https://console.neon.tech/api/v2/projects/${{ inputs.project_id }}/applications/github \
-          | jq -r ".workflows[] | select(.type == \"pr_branches\")")
+          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" https://console.neon.tech/api/v2/projects/${{ inputs.project_id }}/applications/github | jq -r ".workflows[] | select(.type == \"pr_branches\")")
           echo $WORKFLOW
           echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_ENV
           echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_ENV
