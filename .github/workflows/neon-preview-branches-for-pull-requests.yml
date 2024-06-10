@@ -38,16 +38,16 @@ jobs:
     name: Create/Delete Branch for Pull Request Job
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch integration data
-        shell: bash
-        run: |
-          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
-            ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
-            | jq -r ".workflows[] | select(.type == \"pr_branches\")")
-          echo $WORKFLOW
-          echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_ENV
-          echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_ENV
-          echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_ENV
+#      - name: Fetch integration data
+#        shell: bash
+#        run: |
+#          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+#            ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
+#            | jq -r ".workflows[] | select(.type == \"pr_branches\")")
+#          echo $WORKFLOW
+#          echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_ENV
+#          echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_ENV
+#          echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_ENV
 
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
@@ -59,9 +59,9 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           branch_name: preview/pr-${{ github.event.number }}
-          parent: ${{ env.workflow_parent }}
-          database: ${{ env.workflow_db }}
-          username: ${{ env.workflow_role }}
+          parent: ${{ inputs.parent_branch }}
+          database: ${{ inputs.db }}
+          username: ${{ inputs.role }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
