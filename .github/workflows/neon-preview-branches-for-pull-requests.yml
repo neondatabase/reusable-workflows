@@ -48,7 +48,7 @@ jobs:
           || github.event.action == 'opened'
           || github.event.action == 'reopened') }}
         run: |
-          WORKFLOW=$(curl -fsSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+          WORKFLOW=$(curl --fail-with-body -fsSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
             ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
             | jq -r ".workflows[] | select(.type == \"pr_branches\")")
           echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_OUTPUT
