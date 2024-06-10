@@ -12,15 +12,15 @@ on:
           A parameter to create a new branch. 
           The parent branch name or id or LSN or timestamp. 
           By default the primary branch is used.
-        required: true
+        required: false
         type: string
       db:
         description: A parameter to create a new branch.
-        required: true
+        required: false
         type: string
       role:
         description: A parameter to create a new branch.
-        required: true
+        required: false
         type: string
     secrets:
       inherit:
@@ -30,6 +30,13 @@ jobs:
     name: Create/Delete Branch for Pull Request Job
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch integration data
+        shell: bash
+        run: |
+          WORKFLOW=$(curl -H "accept: application/json" -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \ 
+          https://console.neon.tech/api/v2/projects/${{ inputs.project_id} }}/applications/github \
+          | jq -r ".workflows[] | select(.type == 'pr_branches')")
+          echo $WORKFLOW
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
         if: |
