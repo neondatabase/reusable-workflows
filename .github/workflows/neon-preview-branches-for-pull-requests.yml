@@ -41,7 +41,7 @@ jobs:
     name: Create/Delete Branch for Pull Request Job
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare create params
+      - name: Prepare create parameters
         id: params
         shell: bash
         if: |
