@@ -35,7 +35,7 @@ jobs:
       
       # optional parameters
       # a Neon branch ID to be used as a parent branch for the branches created by the workflow
-      # if not specified, primary branch will be used
+      # if not specified, the primary branch will be used
       parent_branch: main
       # a Neon database name for constructing a database connection URL after a branch creation
       # if not specified, the first possible database will be used.
