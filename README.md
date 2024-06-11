@@ -48,7 +48,7 @@ jobs:
 ```
 
 If the Neon project has an existing Github integration, you can only specify the `project_id`.
-parameter, other parameters will be fetched from the Neon API.
+Other parameters will be fetched via the Neon API.
 ```yml
 jobs:
   neon_branch_management:
