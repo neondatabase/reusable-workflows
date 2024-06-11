@@ -48,7 +48,7 @@ jobs:
           || github.event.action == 'opened'
           || github.event.action == 'reopened') }}
         run: |
-          if [ "${{ inputs.parent_branch }}" -ne "" -a "${{ inputs.db }}" -ne ""  -a "${{ inputs.role }}" -ne ""]; then \
+          if [ "${{ inputs.parent_branch }}" != "" -a "${{ inputs.db }}" != ""  -a "${{ inputs.role }}" != ""]; then \
             echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
             echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
             echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
@@ -57,17 +57,17 @@ jobs:
           WORKFLOW=$(curl --fail-with-body -sSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
             ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
             | jq -r ".workflows[] | select(.type == \"pr_branches\")")
-          if [ "${{ inputs.parent_branch }}" -ne "" ]; then \
+          if [ "${{ inputs.parent_branch }}" != "" ]; then \
             echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_OUTPUT
           else
             echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
           fi
-          if [ "${{ inputs.db }}" -ne "" ]; then \
+          if [ "${{ inputs.db }}" != "" ]; then \
             echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_OUTPUT
           else 
             echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
           fi
-          if [ "${{ inputs.role }}" -ne "" ]; then \
+          if [ "${{ inputs.role }}" != "" ]; then \
             echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
           else
             echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
