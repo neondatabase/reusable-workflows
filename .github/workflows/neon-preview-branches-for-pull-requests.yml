@@ -98,7 +98,9 @@ jobs:
           github.event_name == 'pull_request' &&
           (github.event.action == 'synchronize' ||
            github.event.action == 'opened' ||
-           github.event.action == 'reopened')
+           github.event.action == 'reopened' ||
+           github.event.action == 'labeled'
+          )
         with:
           project_id: ${{ inputs.project_id }}
           parent: true
