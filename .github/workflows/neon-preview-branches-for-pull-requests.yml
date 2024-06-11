@@ -21,7 +21,7 @@ on:
         type: string
       role:
         description: |
-          An optional role to construct a db connection string after branch creation.
+          An optional role for constructing a database connection string after branch creation.
           If not specified, the first possible role will be used.
         required: false
         type: string
