@@ -33,7 +33,7 @@ on:
         description: An URL to Neon API service. Should be only provided if you are workflow developer.
     secrets:
       NEON_API_KEY:
-        description: A Neon API key is required to access the APIs for branch creation, deletion, reset.
+        description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
         required: true
 
 jobs:
