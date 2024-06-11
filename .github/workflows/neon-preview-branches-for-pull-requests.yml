@@ -9,7 +9,7 @@ on:
         type: string
       parent_branch:
         description: |
-          The parent branch name or id or LSN or timestamp to create a new branch. 
+          The parent branch name, id, LSN, or timestamp to create a new branch. 
           If not specified, primary branch is used.
         required: false
         type: string
