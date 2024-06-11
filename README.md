@@ -7,7 +7,7 @@
 This GitHub action:
 - creates Neon branches for new, reopened, and updated PRs
 - resets Neon branches based on the `Reset Neon Branch` label
-- deletes Neon branches for closed PRs
+- deletes Neon branches for closed or merged PRs
 
 Here is an example of how to use it:
 
@@ -29,12 +29,35 @@ jobs:
     name: Create/Delete/Reset Branch for Pull Request Job
     uses: neondatabase/reusable-workflows/.github/workflows/neon-preview-branches-for-pull-requests.yml@main
     with:
+      # required parameters
+      # a Neon project ID
       project_id: proud-salad-35321605
+      
+      # optional parameters
+      # a Neon branch ID to be used as a parent branch for the branches created by the workflow
+      # if not specified, the primary branch will be used
       parent_branch: main
+      # a Neon database name for constructing a database connection URL after a branch creation
+      # if not specified, the first possible database will be used.
       db: neondb
+      # a Neon database role for constructing a database connection URL after a branch creation
+      # if not specified, the first possible role will be used.
       role: neondb_owner
     secrets:
-      inherit
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+```
+
+If the Neon project has an existing Github integration, you can only specify the `project_id`.
+Other parameters will be fetched via the Neon API.
+```yml
+jobs:
+  neon_branch_management:
+    name: Create/Delete/Reset Branch for Pull Request Job
+    uses: neondatabase/reusable-workflows/.github/workflows/neon-preview-branches-for-pull-requests.yml@main
+    with:
+      project_id: proud-salad-35321605
+    secrets:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 ```
 
 The full list of supported parameters can be viewed in the [_neon-preview-branches-for-pull-requests.yml_](/.github/workflows/neon-preview-branches-for-pull-requests.yml) file.
