@@ -40,7 +40,7 @@ jobs:
       # a Neon database name for constructing a database connection URL after a branch creation
       # if not specified, the first possible database will be used.
       db: neondb
-      # a Neon database role, to a construct DB connection URL after a branch creation
+      # a Neon database role for constructing a database connection URL after a branch creation
       # if not specified, the first possible role will be used.
       role: neondb_owner
     secrets:
