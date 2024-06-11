@@ -48,11 +48,6 @@ jobs:
           || github.event.action == 'opened'
           || github.event.action == 'reopened') }}
         run: |
-          echo "${{ github.event.pull_request.labels }}"
-          echo "${{ join(github.event.pull_request.labels) }}"
-          echo "${{ 'Reset Neon Branch' }}"
-          echo ${{ contains(github.event.pull_request.labels.*.name, 'Reset Neon Branch') }}
-          echo ${{ contains(join(github.event.pull_request.labels.*.name), 'Reset Neon Branch') }}
           if [ "${{ inputs.parent_branch }}" != "" ] && [ "${{ inputs.db }}" != "" ] && [ "${{ inputs.role }}" != "" ]; then \
             echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
             echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
