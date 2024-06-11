@@ -54,7 +54,7 @@ jobs:
             echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
             exit 0;
           fi
-          WORKFLOW=$(curl --fail-with-body -fsSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+          WORKFLOW=$(curl --fail-with-body -sSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
             ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
             | jq -r ".workflows[] | select(.type == \"pr_branches\")")
           if [ "${{ inputs.parent_branch }}" -ne "" ]; then \
