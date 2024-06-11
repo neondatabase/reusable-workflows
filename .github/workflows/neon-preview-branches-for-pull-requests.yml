@@ -15,20 +15,22 @@ on:
         type: string
       db:
         description: |
-          An optional role to construct a db connection string after branch creation.
+          An optional db to construct a db connection string after branch creation.
+          If not specified, the first possible db will be used.
         required: false
         type: string
       role:
         description: |
           An optional role to construct a db connection string after branch creation.
+          If not specified, the first possible role will be used.
         required: false
         type: string
       oauth_url:
         type: string
-        description: An URL to Neon OAuth service.
+        description: An URL to Neon OAuth service. Should be only provided if you are workflow developer.
       api_url:
         type: string
-        description: An URL to Neon API service
+        description: An URL to Neon API service. Should be only provided if you are workflow developer.
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, reset.
