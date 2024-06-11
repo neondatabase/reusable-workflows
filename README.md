@@ -28,7 +28,31 @@ jobs:
   neon_branch_management:
     name: Create/Delete/Reset Branch for Pull Request Job
     uses: neondatabase/reusable-workflows/.github/workflows/neon-preview-branches-for-pull-requests.yml@main
-    with: 
+    with:
+      # required parameters
+      # a Neon project ID
+      project_id: proud-salad-35321605
+      
+      # optional parameters
+      # a Neon branch ID to be used as a parent branch for the branches created by the workflow
+      # if not specified, primary branch will be used
+      parent_branch: main
+      # a Neon database name, to a construct DB connection URL after a branch creation
+      db: neondb
+      # a Neon database role, to a construct DB connection URL after a branch creation
+      role: neondb_owner
+    secrets:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+```
+
+If there is a Github integration in the [Neon Console](https://console.neon.tech/) for the project, you may leave only the `project_id`
+parameter, other parameters will be fetched from the Neon API.
+```yml
+jobs:
+  neon_branch_management:
+    name: Create/Delete/Reset Branch for Pull Request Job
+    uses: neondatabase/reusable-workflows/.github/workflows/neon-preview-branches-for-pull-requests.yml@main
+    with:
       project_id: proud-salad-35321605
     secrets:
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
