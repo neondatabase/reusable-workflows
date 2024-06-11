@@ -47,7 +47,7 @@ jobs:
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 ```
 
-If there is a Github integration in the [Neon Console](https://console.neon.tech/) for the project, you may leave only the `project_id`
+If the Neon project has an existing Github integration, you can only specify the `project_id`.
 parameter, other parameters will be fetched from the Neon API.
 ```yml
 jobs:
