@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare create parameters
-        id: params
+        id: setup
         shell: bash
         if: |
          github.event_name == 'pull_request' && (
@@ -117,10 +117,10 @@ jobs:
         uses: neondatabase/create-branch-action@v5.0.0
         with:
           project_id: ${{ inputs.project_id }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
-          parent: ${{ steps.params.outputs.workflow_parent }}
-          database: ${{ steps.params.outputs.workflow_db }}
-          username: ${{ steps.params.outputs.workflow_role }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ jobs.setup.outputs.branch }}
+          parent: ${{ steps.setup.outputs.workflow_parent }}
+          database: ${{ steps.setup.outputs.workflow_db }}
+          username: ${{ steps.setup.outputs.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
@@ -146,7 +146,7 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           parent: true
-          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
+          branch: preview/pr-${{ github.event.number }}-${{ jobs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
@@ -161,7 +161,7 @@ jobs:
       uses: neondatabase/delete-branch-action@v3
       with:
         project_id: ${{ inputs.project_id }}
-        branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
+        branch: preview/pr-${{ github.event.number }}-${{ jobs.setup.outputs.branch }}
         api_key: ${{ secrets.NEON_API_KEY }}
       env:
         NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
