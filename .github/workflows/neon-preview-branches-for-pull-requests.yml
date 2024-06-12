@@ -36,17 +36,17 @@ on:
     outputs:
       db_url_with_pooler:
         description: 'New branch DATABASE_URL with pooler'
-        value: ${{ jobs.neon_branch_management.outputs.db_url_with_pooler }}
+        value: ${{ jobs.neon_branch_management_reusable.outputs.db_url_with_pooler }}
       db_url:
         description: 'New branch DATABASE_URL without pooler'
-        value: ${{ jobs.neon_branch_management.outputs.db_url }}
+        value: ${{ jobs.neon_branch_management_reusable.outputs.db_url }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
         required: true
 
 jobs:
-  neon_branch_management:
+  neon_branch_management_reusable:
     name: Create/Delete Branch for Pull Request Job
     outputs:
       db_url_with_pooler: ${{ steps.create_branch.outputs.db_url_with_pooler }}
