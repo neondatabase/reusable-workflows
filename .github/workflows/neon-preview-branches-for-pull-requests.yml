@@ -49,8 +49,8 @@ jobs:
   neon_branch_management:
     name: Create/Delete Branch for Pull Request Job
     outputs:
-      db_url_with_pooler: ${{ steps.debug.outputs.db_url_with_pooler }}
-      db_url: ${{ steps.debug.outputs.db_url }}
+      db_url_with_pooler: ${{ steps.create_branch.outputs.db_url_with_pooler }}
+      db_url: ${{ steps.create_branch.outputs.db_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -117,11 +117,3 @@ jobs:
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
           NEON_API_HOST: ${{ inputs.api_url }}
-
-      - id: debug
-        run: |
-          echo "db_url_with_pooler=${{ steps.create_branch.outputs.db_url_with_pooler }}"
-          echo "db_url_with_pooler=${{ steps.create_branch.outputs.db_url_with_pooler }}" >> $GITHUB_OUTPUT
-          echo "db_url=${{ steps.create_branch.outputs.db_url }}"
-          echo "db_url=${{ steps.create_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
-
