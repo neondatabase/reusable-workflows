@@ -49,8 +49,8 @@ jobs:
   neon_branch_management:
     name: Create/Delete Branch for Pull Request Job
     outputs:
-      database_url: ${{ steps.create_branch.outputs.db_url_with_pooler }}
-      database_url_unpooled: ${{ steps.create_branch.outputs.db_url }}
+      database_url: ${{ steps.debug.outputs.database_url }}
+      database_url_unpooled: ${{ steps.debug.outputs.database_url_unpooled }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -118,10 +118,12 @@ jobs:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
           NEON_API_HOST: ${{ inputs.api_url }}
 
-      - name: debug
+      - id: debug
         run: |
-          echo "${{ steps.create_branch.outputs.db_url_with_pooler }}"
-          echo "${{ steps.create_branch.outputs.db_url }}"
+          echo "database_url=${{ steps.create_branch.outputs.db_url_with_pooler }}"
+          echo "database_url=${{ steps.create_branch.outputs.db_url_with_pooler }}" >> $GITHUB_OUTPUT
+          echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}"
+          echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
 
       - name: Reset Neon Branch
         uses: neondatabase/reset-branch-action@v1
