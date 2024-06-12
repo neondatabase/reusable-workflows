@@ -118,6 +118,11 @@ jobs:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
           NEON_API_HOST: ${{ inputs.api_url }}
 
+      - name: debug
+        run: |
+          echo "${{ steps.create_branch.outputs.db_url_with_pooler }}"
+          echo "${{ steps.create_branch.outputs.db_url }}"
+
       - name: Reset Neon Branch
         uses: neondatabase/reset-branch-action@v1
         if: |
