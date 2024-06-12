@@ -37,7 +37,7 @@ on:
       database_url:
         description: 'New branch DATABASE_URL with pooler'
         value: ${{ jobs.neon_branch_management.outputs.database_url }}
-      db_url_unpooled:
+      database_url_unpooled:
         description: 'New branch DATABASE_URL without pooler'
         value: ${{ jobs.neon_branch_management.outputs.database_url_unpooled }}
     secrets:
