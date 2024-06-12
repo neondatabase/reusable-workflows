@@ -34,12 +34,12 @@ on:
         description: A URL for the Neon API service.
         default: https://console.neon.tech/api/v2
     outputs:
-      database_url:
+      db_url_with_pooler:
         description: 'New branch DATABASE_URL with pooler'
-        value: ${{ jobs.neon_branch_management.outputs.database_url }}
-      database_url_unpooled:
+        value: ${{ jobs.neon_branch_management.outputs.db_url_with_pooler }}
+      db_url:
         description: 'New branch DATABASE_URL without pooler'
-        value: ${{ jobs.neon_branch_management.outputs.database_url_unpooled }}
+        value: ${{ jobs.neon_branch_management.outputs.db_url }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
@@ -49,8 +49,8 @@ jobs:
   neon_branch_management:
     name: Create/Delete Branch for Pull Request Job
     outputs:
-      database_url: ${{ steps.debug.outputs.database_url }}
-      database_url_unpooled: ${{ steps.debug.outputs.database_url_unpooled }}
+      db_url_with_pooler: ${{ steps.debug.outputs.db_url_with_pooler }}
+      db_url: ${{ steps.debug.outputs.db_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -125,32 +125,3 @@ jobs:
           echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}"
           echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
 
-      - name: Reset Neon Branch
-        uses: neondatabase/reset-branch-action@v1
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'Reset Neon Branch') &&
-          github.event_name == 'pull_request' &&
-          (github.event.action == 'synchronize' ||
-           github.event.action == 'opened' ||
-           github.event.action == 'reopened' ||
-           github.event.action == 'labeled'
-          )
-        with:
-          project_id: ${{ inputs.project_id }}
-          parent: true
-          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-        env:
-          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
-          NEON_API_HOST: ${{ inputs.api_url }}
-
-      - name: Delete Neon Branch
-        uses: neondatabase/delete-branch-action@v3
-        if: github.event_name == 'pull_request' && github.event.action == 'closed'
-        with:
-          project_id: ${{ inputs.project_id }}
-          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-        env:
-          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
-          NEON_API_HOST: ${{ inputs.api_url }}
