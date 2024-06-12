@@ -40,6 +40,8 @@ on:
       db_url:
         description: 'New branch DATABASE_URL without pooler'
         value: ${{ jobs.create_neon_branch.outputs.db_url }}
+      test:
+        value: ${{ jobs.test.outputs.test }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
@@ -60,8 +62,8 @@ jobs:
   create_neon_branch:
     name: Create Neon Branch
     outputs:
-      db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
-      db_url: ${{ steps.create_neon_branch.outputs.db_url }}
+      #db_url_with_pooler: ${{ steps.test.outputs.db_url_with_pooler }}
+      db_url: ${{ steps.test.outputs.db_url }}
     needs: setup
     if: |
       github.event_name == 'pull_request' && (
@@ -123,6 +125,10 @@ jobs:
         env:
          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
          NEON_API_HOST: ${{ inputs.api_url }}
+      - name: Test
+        id: test
+        run: |
+          echo 'db_url=${{ steps.create_neon_branch.outputs.db_url }}' >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
     needs: setup
