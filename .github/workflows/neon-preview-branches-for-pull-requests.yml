@@ -41,6 +41,12 @@ jobs:
     name: Create/Delete Branch for Pull Request Job
     runs-on: ubuntu-latest
     steps:
+      - name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: |
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       - name: Prepare create parameters
         id: params
         shell: bash
@@ -81,7 +87,6 @@ jobs:
             echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)"
             echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
           fi
-
       - name: Create Neon Branch
         uses: neondatabase/create-branch-action@v5.0.0
         if: |
@@ -91,7 +96,7 @@ jobs:
           || github.event.action == 'reopened')
         with:
           project_id: ${{ inputs.project_id }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ github.ref_name }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
           parent: ${{ steps.params.outputs.workflow_parent }}
           database: ${{ steps.params.outputs.workflow_db }}
           username: ${{ steps.params.outputs.workflow_role }}
@@ -113,7 +118,7 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           parent: true
-          branch: preview/pr-${{ github.event.number }}-${{ github.ref_name }}
+          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
@@ -124,7 +129,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'closed'
         with:
           project_id: ${{ inputs.project_id }}
-          branch: preview/pr-${{ github.event.number }}-${{ github.ref_name }}
+          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
