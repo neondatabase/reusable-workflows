@@ -39,7 +39,7 @@ on:
         value: ${{ jobs.neon_branch_management.outputs.database_url }}
       db_url_unpooled:
         description: 'New branch DATABASE_URL without pooler'
-        value: ${{ steps.neon_branch_management.outputs.database_url_unpooled }}
+        value: ${{ jobs.neon_branch_management.outputs.database_url_unpooled }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
