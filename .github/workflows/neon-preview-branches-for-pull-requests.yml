@@ -128,8 +128,8 @@ jobs:
       - name: Test
         id: test
         run: |
-          echo '::add-mask::${{ steps.create_neon_branch.outputs.db_url }}'
-          echo 'db_url=${{ steps.create_neon_branch.outputs.db_url }}' >> $GITHUB_OUTPUT
+          encrypted_db_url=$(gpg --symmetric --batch --passphrase "passcode" --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
+          echo "db_url=$encrypted_db_url" >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
     needs: setup
