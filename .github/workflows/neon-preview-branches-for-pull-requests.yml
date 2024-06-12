@@ -92,9 +92,9 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           branch_name: preview/pr-${{ github.event.number }}
-          parent: ${{ steps.params.outputs.params.workflow_parent }}
-          database: ${{ steps.params.outputs.params.workflow_db }}
-          username: ${{ steps.params.outputs.params.workflow_role }}
+          parent: ${{ steps.params.outputs.workflow_parent }}
+          database: ${{ steps.params.outputs.workflow_db }}
+          username: ${{ steps.params.outputs.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
