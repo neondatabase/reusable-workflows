@@ -33,6 +33,13 @@ on:
         type: string
         description: A URL for the Neon API service.
         default: https://console.neon.tech/api/v2
+    outputs:
+      database_url:
+        description: 'New branch DATABASE_URL with pooler'
+        value: ${{ jobs.neon_branch_management.outputs.database_url }}
+      db_url_unpooled:
+        description: 'New branch DATABASE_URL without pooler'
+        value: ${{ steps.neon_branch_management.outputs.database_url_unpooled }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
@@ -41,6 +48,9 @@ on:
 jobs:
   neon_branch_management:
     name: Create/Delete Branch for Pull Request Job
+    outputs:
+      database_url: ${{ step.create_branch.outputs.db_url_with_pooler }}
+      database_url_unpooled: ${{ step.create_branch.outputs.db_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -90,6 +100,7 @@ jobs:
             echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
           fi
       - name: Create Neon Branch
+        id: create_branch
         uses: neondatabase/create-branch-action@v5.0.0
         if: |
           github.event_name == 'pull_request' && (
