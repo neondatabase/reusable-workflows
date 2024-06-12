@@ -120,8 +120,8 @@ jobs:
 
       - id: debug
         run: |
-          echo "database_url=${{ steps.create_branch.outputs.db_url_with_pooler }}"
-          echo "database_url=${{ steps.create_branch.outputs.db_url_with_pooler }}" >> $GITHUB_OUTPUT
-          echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}"
-          echo "database_url_unpooled=${{ steps.create_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
+          echo "db_url_with_pooler=${{ steps.create_branch.outputs.db_url_with_pooler }}"
+          echo "db_url_with_pooler=${{ steps.create_branch.outputs.db_url_with_pooler }}" >> $GITHUB_OUTPUT
+          echo "db_url=${{ steps.create_branch.outputs.db_url }}"
+          echo "db_url=${{ steps.create_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
 
