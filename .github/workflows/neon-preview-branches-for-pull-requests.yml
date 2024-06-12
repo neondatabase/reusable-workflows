@@ -56,7 +56,6 @@ jobs:
         id: extract_branch
         shell: bash
         run: |
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
   create_neon_branch:
     name: Create Neon Branch
@@ -124,3 +123,40 @@ jobs:
         env:
          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
          NEON_API_HOST: ${{ inputs.api_url }}
+  reset_neon_branch:
+    name: Reset Neon Branch
+    needs: setup
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'Reset Neon Branch') &&
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'synchronize' ||
+       github.event.action == 'opened' ||
+       github.event.action == 'reopened' ||
+       github.event.action == 'labeled')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset Neon Branch
+        uses: neondatabase/reset-branch-action@v1
+        with:
+          project_id: ${{ inputs.project_id }}
+          parent: true
+          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+        env:
+          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+          NEON_API_HOST: ${{ inputs.api_url }}
+  delete_neon_branch:
+    name: Delete Neon Branch
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Delete Neon Branch
+      uses: neondatabase/delete-branch-action@v3
+      with:
+        project_id: ${{ inputs.project_id }}
+        branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
+        api_key: ${{ secrets.NEON_API_KEY }}
+      env:
+        NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+        NEON_API_HOST: ${{ inputs.api_url }}
