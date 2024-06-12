@@ -49,8 +49,8 @@ jobs:
   neon_branch_management:
     name: Create/Delete Branch for Pull Request Job
     outputs:
-      database_url: ${{ step.create_branch.outputs.db_url_with_pooler }}
-      database_url_unpooled: ${{ step.create_branch.outputs.db_url }}
+      database_url: ${{ steps.create_branch.outputs.db_url_with_pooler }}
+      database_url_unpooled: ${{ steps.create_branch.outputs.db_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
