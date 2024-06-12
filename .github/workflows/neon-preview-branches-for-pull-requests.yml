@@ -48,6 +48,8 @@ on:
 jobs:
   setup:
     name: Setup
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
@@ -61,6 +63,7 @@ jobs:
     outputs:
       db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
       db_url: ${{ steps.create_neon_branch.outputs.db_url }}
+    needs: setup
     if: |
       github.event_name == 'pull_request' && (
       github.event.action == 'synchronize'
