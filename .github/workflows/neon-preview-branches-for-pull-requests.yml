@@ -128,7 +128,8 @@ jobs:
       - name: Test
         id: test
         run: |
-          echo 'db_url=123' >> $GITHUB_OUTPUT
+          echo '::add-mask::${{ steps.create_neon_branch.outputs.db_url }}'
+          echo 'db_url=${{ steps.create_neon_branch.outputs.db_url }}' >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
     needs: setup
