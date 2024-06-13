@@ -34,10 +34,10 @@ on:
         description: A URL for the Neon API service.
         default: https://console.neon.tech/api/v2
     outputs:
-      db_url_base64:
+      database_url_unpooled_base64:
         description: 'New branch DATABASE_URL without pooler'
         value: ${{ jobs.create_neon_branch.outputs.db_url }}
-      db_url_with_pooler_base64:
+      database_url_base64:
         description: 'New branch DATABASE_URL with pooler'
         value: ${{ jobs.create_neon_branch.outputs.db_url_with_pooler }}
     secrets:
