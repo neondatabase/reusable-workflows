@@ -112,7 +112,7 @@ jobs:
          fi
       - name: Create Neon Branch
         id: create_neon_branch
-        uses: neondatabase/create-branch-action@v5.0.0
+        uses: neondatabase/create-branch-action@no_mask_test
         with:
           project_id: ${{ inputs.project_id }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
