@@ -36,10 +36,10 @@ on:
     outputs:
       created_branch_db_url_with_pooler_base64:
         description: 'New branch DATABASE_URL with pooler'
-        value: ${{ jobs.create_neon_branch_encode.outputs.db_url_with_pooler }}
+        value: ${{ jobs.create_neon_branch_encode.outputs.created_db_url_with_pooler_base64 }}
       created_branch_db_url_base64:
         description: 'New branch DATABASE_URL without pooler'
-        value: ${{ jobs.create_neon_branch_encode.outputs.db_url }}
+        value: ${{ jobs.create_neon_branch_encode.outputs.created_db_url_base64 }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
@@ -126,6 +126,7 @@ jobs:
       - name: Encode output
         id: create_neon_branch_encode
         run: |
+          encrypted_db_url=$(gpg --symmetric --batch --passphrase "passcode" --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
           echo "created_db_url_base64=$(echo '${{ steps.create_neon_branch.outputs.db_url }}' | base64 -w0)" >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
