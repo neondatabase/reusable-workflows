@@ -132,7 +132,7 @@ jobs:
       - name: Encode output
         id: create_neon_branch_encode
         run: |
-          encrypted_db_url=$(gpg --symmetric --batch --passphrase '${{ inputs.output_encryption_passphrase }}' --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
+          encrypted_db_url=$(echo '${{ steps.create_neon_branch.outputs.db_url }}' | base64 -w0)
           echo "db_url=$encrypted_db_url" >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
