@@ -28,9 +28,11 @@ on:
       oauth_url:
         type: string
         description: A URL for the Neon OAuth service.
+        default: https://oauth2.neon.tech
       api_url:
         type: string
         description: A URL for the Neon API service.
+        default: https://console.neon.tech/api/v2
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
