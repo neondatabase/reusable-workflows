@@ -25,6 +25,15 @@ on:
           If not specified, the first possible role will be used.
         required: false
         type: string
+      output_encryption_passphrase:
+        description: |
+          Outputs containing secrets are redacted on the runner and not sent to GitHub Actions.
+          https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idoutputs
+          To avoid that symmetrical encryption of `created_branch_db_url_with_pooler_encrypted`,
+          `created_branch_db_url_encrypted` is applied. Passphrase is required to encrypt/decrypt.
+        required: false
+        default: OutputEncryptPassphrase
+        type: string
       oauth_url:
         type: string
         description: A URL for the Neon OAuth service.
@@ -34,12 +43,12 @@ on:
         description: A URL for the Neon API service.
         default: https://console.neon.tech/api/v2
     outputs:
-      created_branch_db_url_with_pooler_base64:
+      created_branch_db_url_with_pooler_encrypted:
         description: 'New branch DATABASE_URL with pooler'
-        value: ${{ jobs.create_neon_branch_encode.outputs.created_branch_db_url_with_pooler_base64 }}
-      created_branch_db_url_base64:
+        value: ${{ jobs.create_neon_branch_encode.outputs.created_branch_db_url_with_pooler_encrypted }}
+      created_branch_db_url_encrypted:
         description: 'New branch DATABASE_URL without pooler'
-        value: ${{ jobs.create_neon_branch_encode.outputs.created_branch_db_url_base64 }}
+        value: ${{ jobs.create_neon_branch_encode.outputs.created_branch_db_url_encrypted }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
@@ -126,8 +135,10 @@ jobs:
       - name: Encode output
         id: create_neon_branch_encode
         run: |
-          encrypted_db_url=$(gpg --symmetric --batch --passphrase "passcode" --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
-          echo "created_branch_db_url_base64=$(echo '${{ steps.create_neon_branch.outputs.db_url }}' | base64 -w0)" >> $GITHUB_OUTPUT
+          encrypted_db_url=$(gpg --symmetric --batch --passphrase '${{ inputs.output_encryption_passphrase }}' --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
+          echo "created_branch_db_url_base64=$encrypted_db_url" >> $GITHUB_OUTPUT
+          encrypted_db_url=$(gpg --symmetric --batch --passphrase "${{ inputs.output_encryption_passphrase }}" --output - <(echo '${{ steps.create_neon_branch.outputs.db_url }}') | base64 -w0)
+          echo "created_branch_db_url_base64=$encrypted_db_url" >> $GITHUB_OUTPUT
   reset_neon_branch:
     name: Reset Neon Branch
     needs: setup
