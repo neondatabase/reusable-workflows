@@ -33,106 +33,135 @@ on:
         type: string
         description: A URL for the Neon API service.
         default: https://console.neon.tech/api/v2
+    outputs:
+      database_url_unpooled_base64:
+        description: 'New branch DATABASE_URL without pooler'
+        value: ${{ jobs.create_neon_branch.outputs.db_url }}
+      database_url_base64:
+        description: 'New branch DATABASE_URL with pooler'
+        value: ${{ jobs.create_neon_branch.outputs.db_url_with_pooler }}
     secrets:
       NEON_API_KEY:
         description: A Neon API key is required to access the APIs for branch creation, deletion, and reset.
         required: true
 
 jobs:
-  neon_branch_management:
-    name: Create/Delete Branch for Pull Request Job
+  setup:
+    name: Setup
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract branch name
         id: extract_branch
         shell: bash
         run: |
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+  create_neon_branch:
+    name: Create Neon Branch
+    outputs:
+      db_url: ${{ steps.create_neon_branch_encode.outputs.db_url }}
+      db_url_with_pooler: ${{ steps.create_neon_branch_encode.outputs.db_url_with_pooler }}
+    needs: setup
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize'
+      || github.event.action == 'opened'
+      || github.event.action == 'reopened')
+    runs-on: ubuntu-latest
+    steps:
       - name: Prepare create parameters
-        id: params
+        id: setup
         shell: bash
         if: |
-          github.event_name == 'pull_request' && (
-          github.event.action == 'synchronize'
-          || github.event.action == 'opened'
-          || github.event.action == 'reopened')
+         github.event_name == 'pull_request' && (
+         github.event.action == 'synchronize'
+         || github.event.action == 'opened'
+         || github.event.action == 'reopened')
         run: |
-          if [ "${{ inputs.parent_branch }}" != "" ] && [ "${{ inputs.db }}" != "" ] && [ "${{ inputs.role }}" != "" ]; then \
-            echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
-            echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
-            echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
-            exit 0;
-          fi
-          WORKFLOW=$(curl --fail-with-body -sSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
-            ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
-            | jq -r ".workflows[] | select(.type == \"pr_branches\")")
-          echo $WORKFLOW
-          if [ "${{ inputs.parent_branch }}" != "" ]; then \
-            echo "workflow_parent=${{ inputs.parent_branch }}"
-            echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
-          else
-            echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)"
-            echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_OUTPUT
-          fi
-          if [ "${{ inputs.db }}" != "" ]; then \
-            echo "workflow_db=${{ inputs.db }}"
-            echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
-          else
-            echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)"
-            echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_OUTPUT
-          fi
-          if [ "${{ inputs.role }}" != "" ]; then \
-            echo "workflow_role=${{ inputs.role }}"
-            echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
-          else
-            echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)"
-            echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
-          fi
+         if [ "${{ inputs.parent_branch }}" != "" ] && [ "${{ inputs.db }}" != "" ] && [ "${{ inputs.role }}" != "" ]; then \
+           echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
+           echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
+           echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
+           exit 0;
+         fi
+         WORKFLOW=$(curl --fail-with-body -sSL -H "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
+           ${{ inputs.api_url }}/projects/${{ inputs.project_id }}/applications/github \
+           | jq -r ".workflows[] | select(.type == \"pr_branches\")")
+         echo $WORKFLOW
+         if [ "${{ inputs.parent_branch }}" != "" ]; then \
+           echo "workflow_parent=${{ inputs.parent_branch }}"
+           echo "workflow_parent=${{ inputs.parent_branch }}" >> $GITHUB_OUTPUT
+         else
+           echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)"
+           echo "workflow_parent=$(echo $WORKFLOW | jq .template_values.parent)" >> $GITHUB_OUTPUT
+         fi
+         if [ "${{ inputs.db }}" != "" ]; then \
+           echo "workflow_db=${{ inputs.db }}"
+           echo "workflow_db=${{ inputs.db }}" >> $GITHUB_OUTPUT
+         else
+           echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)"
+           echo "workflow_db=$(echo $WORKFLOW | jq .template_values.db)" >> $GITHUB_OUTPUT
+         fi
+         if [ "${{ inputs.role }}" != "" ]; then \
+           echo "workflow_role=${{ inputs.role }}"
+           echo "workflow_role=${{ inputs.role }}" >> $GITHUB_OUTPUT
+         else
+           echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)"
+           echo "workflow_role=$(echo $WORKFLOW | jq .template_values.role)" >> $GITHUB_OUTPUT
+         fi
       - name: Create Neon Branch
-        uses: neondatabase/create-branch-action@v5.0.0
-        if: |
-          github.event_name == 'pull_request' && (
-          github.event.action == 'synchronize'
-          || github.event.action == 'opened'
-          || github.event.action == 'reopened')
+        id: create_neon_branch
+        uses: neondatabase/create-branch-action@no_mask_test
         with:
           project_id: ${{ inputs.project_id }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
-          parent: ${{ steps.params.outputs.workflow_parent }}
-          database: ${{ steps.params.outputs.workflow_db }}
-          username: ${{ steps.params.outputs.workflow_role }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          parent: ${{ steps.setup.outputs.workflow_parent }}
+          database: ${{ steps.setup.outputs.workflow_db }}
+          username: ${{ steps.setup.outputs.workflow_role }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
-          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
-          NEON_API_HOST: ${{ inputs.api_url }}
-
+         NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+         NEON_API_HOST: ${{ inputs.api_url }}
+      - name: Encode output
+        id: create_neon_branch_encode
+        run: |
+          echo "db_url=${{ steps.create_neon_branch.outputs.db_url }}" >> $GITHUB_OUTPUT
+          echo "db_url_with_pooler=${{ steps.create_neon_branch.outputs.db_url_with_pooler }}" >> $GITHUB_OUTPUT
+  reset_neon_branch:
+    name: Reset Neon Branch
+    needs: setup
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'Reset Neon Branch') &&
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'synchronize' ||
+       github.event.action == 'opened' ||
+       github.event.action == 'reopened' ||
+       github.event.action == 'labeled')
+    runs-on: ubuntu-latest
+    steps:
       - name: Reset Neon Branch
         uses: neondatabase/reset-branch-action@v1
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'Reset Neon Branch') &&
-          github.event_name == 'pull_request' &&
-          (github.event.action == 'synchronize' ||
-           github.event.action == 'opened' ||
-           github.event.action == 'reopened' ||
-           github.event.action == 'labeled'
-          )
         with:
           project_id: ${{ inputs.project_id }}
           parent: true
-          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
+          branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
         env:
           NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
           NEON_API_HOST: ${{ inputs.api_url }}
-
-      - name: Delete Neon Branch
-        uses: neondatabase/delete-branch-action@v3
-        if: github.event_name == 'pull_request' && github.event.action == 'closed'
-        with:
-          project_id: ${{ inputs.project_id }}
-          branch: preview/pr-${{ github.event.number }}-${{ steps.extract_branch.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-        env:
-          NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
-          NEON_API_HOST: ${{ inputs.api_url }}
+  delete_neon_branch:
+    name: Delete Neon Branch
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Delete Neon Branch
+      uses: neondatabase/delete-branch-action@v3
+      with:
+        project_id: ${{ inputs.project_id }}
+        branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+        api_key: ${{ secrets.NEON_API_KEY }}
+      env:
+        NEON_OAUTH_HOST: ${{ inputs.oauth_url }}
+        NEON_API_HOST: ${{ inputs.api_url }}
